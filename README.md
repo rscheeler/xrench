@@ -1,102 +1,67 @@
 # 🔧 xrench
 
-Utility functions for pint and xarray to support RF and microwave design Python tools.
+Utility functions for [pint](https://pint.readthedocs.io/) and [xarray](https://docs.xarray.dev/) to support RF and microwave design Python tools.
 
-## Setup Dev Environment
+## Installation
 
-Installation is using [UV](https://docs.astral.sh/uv/) to manage everything.
-
-**Step 1**: Create a virtual environment
-
-```
-uv venv
+```bash
+uv add xrench
 ```
 
-**Step 2**: Activate your new environment
+Or with pip:
 
-```
-# on windows
-.venv\Scripts\activate
-
-# on mac / linux
-source .venv/bin/activate
+```bash
+pip install xrench
 ```
 
-**Step 3**: Install all the cool dependencies
+## Features
 
-```
-uv sync
-```
+- **Unit-aware arrays** — Seamless integration between `pint` and `xarray` for physical quantities
+- **Custom RF units** — Built-in support for dBK (decibel kelvin) and dBHz (decibel hertz)
+- **Unit decorator** — `wraps_xr` decorator to strip and re-apply units around functions, preserving xarray coordinates and dimensions
+- **Rotation utilities** — Apply `scipy` rotations to coordinate DataArrays, including polarization rotation
+- **Logging control** — Mutable/unmutable logger via `XRENCHLogger` for clean library logging
 
-## Github Repo Setup
+## Usage
 
-To add your new project to its Github repository, firstly make sure you have created a project named **xrench** on Github.
-Follow these steps to push your new project.
+### Unit Registry
 
-```
-git remote add origin git@github.com:rscheeler/xrench.git
-git branch -M main
-git push -u origin main
-```
+```python
+from xrench.units import ureg
 
-## Built-in CLI Commands
-
-We've included a bunch of useful CLI commands for common project tasks using [taskipy](https://github.com/taskipy/taskipy).
-
-```
-# run src/xrench/xrench.py
-task run
-
-# run all tests
-task tests
-
-
-# run tests with multiple python versions (3.13,3.12,3.11,3.10)
-task nox
-
-# run test coverage and generate report
-task coverage
-
-# typechecking with Ty or Mypy
-task type
-
-# ruff linting
-task lint
-
-# format with ruff
-task format
+# Use built-in RF units
+noise_temp = 290 * ureg.decibelkelvin
+bandwidth = 1e6 * ureg.decibelhertz
 ```
 
-## Docs Generation + Publishing
+### Convert kwargs to DataArrays
 
-Doc generation is setup to scan everything inside `/src`, files with a prefix `_` will be ignored. Basic doc functions for generating, serving, and publishing can be done through these CLI commands:
+```python
+from xrench.xrutils import kw2da
 
-```
-# generate docs & serve
-task docs
-
-# serve docs
-task serve
-
-# generate static HTML docs (outputs to ./site/)
-task html
-
-# publish docs to Github Pages
-task publish
+arrays = kw2da(frequency=freq_quantity, angle=angle_array)
 ```
 
-Note: Your repo must be public or have an upgraded account to deploy docs to Github Pages.
+### Unit-preserving function decorator
 
-## Dependabot Setup
+```python
+from xrench.xrutils import wraps_xr
 
-1. Go to the "Settings -> Advanced Security" tab in your repository.
-2. Under the "Dependabot" section enable the options you want to monitor, we recommend the "Dependabot security updates" at the minimum.
+@wraps_xr(ret_units="meter", arg_units=["meter", "meter"])
+def my_func(x, y):
+    # work with unit-less DataArrays
+    return x + y
+```
 
-Dependabot is configured to do _weekly_ scans of your dependencies, and pull requests will be prefixed with "DBOT". These settings can be adjusted in the `./.github/dependabot.yml` file.
+### Logging
 
-## References
+```python
+from xrench.logcontrol import XRENCHLogger
 
-- [Pattern](https://github.com/wyattferguson/pattern) - A modern cookiecutter template for your next Python project.
+XRENCHLogger.unmute()         # enable logs
+XRENCHLogger.level = "DEBUG"  # change level
+XRENCHLogger.mute()           # silence logs
+```
 
 ## License
 
