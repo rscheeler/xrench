@@ -63,4 +63,4 @@ class LOGCONTROLLER:
 
 
 # Instance
-HICSLogger = LOGCONTROLLER(module_name="xrench")
+XRENCHLogger = LOGCONTROLLER(module_name="xrench")
