@@ -1,0 +1,39 @@
+name: Publish to TestPyPI
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to publish (e.g. 1.2.3, no v prefix)'
+        required: true
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      # 1. Get the code
+      - uses: actions/checkout@v4
+
+      # 2. Install uv
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "0.6.12"
+
+      # 3. Inject the version from input
+      - name: Set Version
+        run: |
+          sed -i "s/^version = \".*\"/version = \"${{ github.event.inputs.version }}\"/" pyproject.toml
+          echo "Building version ${{ github.event.inputs.version }}"
+
+      # 4. Build the wheel
+      - name: Build package
+        run: uv build
+
+      # 5. Publish using Trusted Publishing
+      - name: Publish package
+        run: uv publish --publish-url https://test.pypi.org/legacy/
