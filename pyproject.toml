@@ -7,16 +7,22 @@ authors = [{ name = "Rob Scheeler", email = "email@example.com" }]
 readme = "README.md"
 license = {file = "LICENSE"}
 keywords = ["python"]
-requires-python = ">=3.13,<4"
+requires-python = ">=3.11,<3.14"
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
-    "Programming Language :: Python :: 3.14",
     "Typing :: Typed",
 ]
 dependencies = [
+    "pint",
+    "xarray",
+    "scipy",
+    "numpy",
+    "loguru",
 ]
 
 [dependency-groups]

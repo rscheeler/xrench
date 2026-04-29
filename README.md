@@ -1,6 +1,6 @@
-# :rocket: xrench
+# :wrench: xrench
 
-Utility functions.
+Utility functions for pint and xarray to support RF and microwave design Python tools.
 
 ## Setup Dev Environment
 
