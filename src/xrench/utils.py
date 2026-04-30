@@ -1,15 +1,15 @@
 from __future__ import annotations
 
 
-class Singleton:
+class Singleton(type):
     """
     Singleton class.
     See: https://stackoverflow.com/questions/6760685/creating-a-singleton-in-python.
     """
 
-    _instances = {}
+    _instances: dict[type, object] = {}
 
-    def __call__(cls, *args, **kwargs):  # noqa: D102
+    def __call__(cls, *args, **kwargs):  # noqa: ANN002, ANN003, ANN204, D102
         if cls not in cls._instances:
             cls._instances[cls] = super().__call__(*args, **kwargs)
         else:
