@@ -88,12 +88,26 @@ def compute_if_dask(x: Any) -> Any:
     return x
 
 
-def wraps_xr(ret_units: Any, arg_units: Sequence[Any] | None = None) -> Callable:
+def wraps_xr(
+    ret_units: Any,
+    arg_units: Sequence[Any] | None = None,
+    kwarg_units: dict[str, Any] | None = None,
+) -> Callable:
     """
     Decorator that strips units on entry and adds them back on exit.
     Preserves xarray containers to maintain coordinate/dimension integrity.
+
+    Parameters
+    ----------
+    ret_units : Any
+        Units to apply to the returned result.
+    arg_units : Sequence[Any] | None, optional
+        Units for positional arguments.
+    kwarg_units : dict[str, Any] | None, optional
+        Units for keyword arguments.
     """
     actual_arg_units = arg_units if arg_units is not None else ()
+    actual_kwarg_units = kwarg_units if kwarg_units is not None else {}
 
     def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
@@ -103,6 +117,10 @@ def wraps_xr(ret_units: Any, arg_units: Sequence[Any] | None = None) -> Callable
             for i, unit in enumerate(actual_arg_units):
                 if i < len(new_args):
                     new_args[i] = _to_mag(new_args[i], unit)
+
+            for key, unit in actual_kwarg_units.items():
+                if key in kwargs:
+                    kwargs[key] = _to_mag(kwargs[key], unit)
 
             # 2. EXECUTE: Function works with unit-less DataArrays
             result = func(*new_args, **kwargs)

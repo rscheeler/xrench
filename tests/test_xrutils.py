@@ -98,6 +98,17 @@ class TestWrapsXr:
         result = get_magnitude(da)
         assert result is da
 
+    def test_strips_kwargs_units_and_reapplies_on_exit(self) -> None:
+        @xrutils.wraps_xr(ret_units="meter", kwarg_units={"x": "meter"})
+        def process(*, x: xr.DataArray) -> xr.DataArray:
+            return x * 2
+
+        da = xr.DataArray([5.0], dims=("x",)) * ureg("meter")
+        result = process(x=da)
+
+        assert isinstance(result.data, type(ureg("1 meter")))
+        assert np.isclose(result.data.magnitude[0], 10.0)
+
 
 class TestApplyRotation:
     def test_applies_identity_rotation(self) -> None:
