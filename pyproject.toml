@@ -3,7 +3,7 @@
 name = "xrench"
 version = "0.1.0"
 description = "Utility functions."
-authors = [{ name = "Rob Scheeler", email = "email@example.com" }]
+authors = [{ name = "Rob Scheeler"}]
 readme = "README.md"
 license = {file = "LICENSE"}
 keywords = ["python"]
