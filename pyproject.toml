@@ -62,6 +62,10 @@ nox = { cmd = "nox -s tests", help = "Run tests in a nox session" }
 coverage = { cmd = "coverage run -m pytest tests && coverage report", help = "Generate coverage report" }
 run = { cmd = "uv run ./src/xrench/xrench.py", help = "Run main application" }
 upgrade = { cmd = "uv sync --upgrade", help = "Upgrade all dependencies to lastest versions."}
+bump-patch = { cmd = "uv version --bump patch && git add pyproject.toml && git commit -m 'bump version to '$(uv version --short)", help = "Bump patch version and commit" }
+bump-minor = { cmd = "uv version --bump minor && git add pyproject.toml && git commit -m 'bump version to '$(uv version --short)", help = "Bump minor version and commit" }
+bump-major = { cmd = "uv version --bump major && git add pyproject.toml && git commit -m 'bump version to '$(uv version --short)", help = "Bump major version and commit" }
+tag-and-push = { cmd = "git tag v$(uv version --short) && git push --follow-tags", help = "Tag current version and push" }
 
 [tool.ruff]
 line-length = 100
