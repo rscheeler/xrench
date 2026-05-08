@@ -23,31 +23,39 @@ if TYPE_CHECKING:
     UnitsOut = UnitLike | Sequence[UnitLike]
 
 
-def kw2da(**kwargs: Any) -> dict[xr.DataArray]:
+def kw2da(**kwargs: Any) -> dict[str, xr.DataArray]:
     """
-    Convert kwargs of one-dimensional data into an xarray DataArray object.
-
-    Returns:
-    -------
-    das : dict
-        Dictionary of DataArray
+    Convert kwargs of one-dimensional data into xarray DataArray objects.
+    Handles floats, lists, pint Quantities, numpy arrays, and existing DataArrays.
     """
-    # Initialize output dict
     out = {}
-    # Iterate over kwargs
+
     for k, v in kwargs.items():
-        # Dimensional coordinate data will have quantities removed, convert to base units
-        if not isinstance(v, xr.DataArray):
-            if isinstance(v, ureg.Quantity):
-                v = v.to_base_units()  # noqa: PLW2901
-            if not isinstance(v, np.ndarray) or v.shape == ():
-                v = [v]  # noqa: PLW2901
-            out[k] = xr.DataArray(v, dims=(k,), coords={k: v})
-        elif isinstance(v.data, ureg.Quantity):
-            v.data = v.data.to_base_units()
+        # 1. Handle existing DataArrays
+        if isinstance(v, xr.DataArray):
+            # Check if underlying data is a pint Quantity
+            if hasattr(v.data, "to_base_units"):
+                v = v.copy(deep=True)  # Avoid mutating original
+                v.data = v.data.to_base_units()
             out[k] = v
-        else:
-            out[k] = v
+            continue
+
+        # 2. Handle Pint Quantities (convert to base units and strip magnitude for coords)
+        if hasattr(v, "to_base_units"):
+            v = v.to_base_units().magnitude
+
+        # 3. Normalize to a 1D numpy array
+        # np.atleast_1d handles scalars (0D), lists, and arrays consistently
+        v_arr = np.atleast_1d(v)
+
+        # 4. Create the DataArray
+        # Using k for both the dimension name and the coordinate values
+        out[k] = xr.DataArray(
+            v_arr,
+            dims=(k,),
+            coords={k: v_arr},
+            name=k,
+        )
 
     return out
 
